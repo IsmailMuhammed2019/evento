@@ -1,6 +1,9 @@
-# evento
+<img width="6067" height="889" alt="header" src="https://github.com/user-attachments/assets/19e45515-632f-4913-b209-1cb42774944c" />
 
-evento is a Progressive Web App (PWA) designed to streamline and modernize attendance tracking for university events by replacing the traditional pen and paper methods with a fast, efficient, and digital solution.
+## evento is a Progressive Web App (PWA) that digitizes university event attendance, replacing slow pen-and-paper methods with a faster, more efficient solution.
+
+
+
 
 ## Features
 
@@ -14,6 +17,12 @@ evento is a Progressive Web App (PWA) designed to streamline and modernize atten
 ## Screenshots
 
 ![Untitled-2](https://github.com/user-attachments/assets/c56edd37-96a2-4ef9-ba52-424fba481635)
+![evento-1](https://github.com/user-attachments/assets/f95ba3e7-dccd-451f-bf1d-b047345f0d94)
+![evento-2](https://github.com/user-attachments/assets/6a206e55-0924-4223-b2b6-b6dc583a8063)
+![evento-3](https://github.com/user-attachments/assets/a2706983-6bac-4ed5-b05f-5f44c46652ed)
+![evento-4](https://github.com/user-attachments/assets/443c963e-109d-4fb5-bb80-5b623efa6e0b)
+![evento-5](https://github.com/user-attachments/assets/ab96c810-5853-4a8c-bde8-1043e11815bc)
+![evento-6](https://github.com/user-attachments/assets/f409b6b0-e990-4828-8cac-20ac3a2a9fbc)
 
 
 # MONOREPO
