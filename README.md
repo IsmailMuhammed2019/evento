@@ -7,11 +7,10 @@
 
 ## Features
 
-- **Progressive Web App (PWA)**: Installable on any device and accessible offline, providing a seamless user experience similar to native apps.
+- **Progressive Web App (PWA)**: Installable on any device, providing a seamless user experience similar to native apps.
 - **QR Code Scanning**: Quickly scan student ID QR codes to log attendance instantly.
 - **Real-Time Data**: Immediate updates and data synchronization for accurate and up-to-date attendance records.
 - **User Roles and Permissions**: Different access levels for main admin, secondary admin, and officers with restricted features to ensure security and proper data management.
-- **Notifications and Alerts**: Custom notifications for attendance-related events and potential issues.
 - **Responsive Design**: Fully responsive design to ensure usability on any device, including desktops, tablets, and smartphones.
 
 ## Screenshots
