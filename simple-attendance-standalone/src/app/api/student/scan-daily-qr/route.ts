@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
+import { getNigerianDate, getNigerianTime, isTodayOrTomorrowInNigeria } from '@/utils/dateUtils';
 
 // PostgreSQL connection
 const pool = new Pool({
@@ -47,12 +48,29 @@ export async function POST(request: NextRequest) {
     }
 
     const qrCode = qrResult.rows[0];
-    const today = new Date().toISOString().split('T')[0];
+    const today = getNigerianDate();
+    
+    // Convert QR code date to same format for comparison
+    const qrDate = new Date(qrCode.date).toISOString().split('T')[0];
 
-    // Check if QR code is for today
-    if (qrCode.date !== today) {
+    // Debug logging
+    console.log('QR Code Date (original):', qrCode.date);
+    console.log('QR Code Date (formatted):', qrDate);
+    console.log('Today Date (Nigeria):', today);
+    console.log('QR Token:', qr_token);
+
+    // Check if QR code is for today or tomorrow (allow next day codes)
+    if (!isTodayOrTomorrowInNigeria(qrDate)) {
       return NextResponse.json(
-        { error: 'QR code is not for today' },
+        { 
+          error: 'QR code is not valid for today or tomorrow',
+          debug: {
+            qrDate: qrCode.date,
+            qrDateFormatted: qrDate,
+            todayDate: today,
+            qrToken: qr_token
+          }
+        },
         { status: 400 }
       );
     }
@@ -84,7 +102,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Record the attendance
-    const currentTime = new Date().toLocaleTimeString();
+    const currentTime = getNigerianTime();
     const result = await pool.query(
       'INSERT INTO attendance (student_id, date, time, type, qr_token) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [student_id, today, currentTime, scanType, qr_token]

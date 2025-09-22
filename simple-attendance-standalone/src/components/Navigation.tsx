@@ -91,7 +91,7 @@ export default function Navigation() {
             >
               Admin Dashboard
             </Link>
-            <Link
+            {/* <Link
               href="/generate"
               className={`py-4 px-2 border-b-2 font-medium text-sm ${
                 pathname === "/generate"
@@ -100,7 +100,7 @@ export default function Navigation() {
               }`}
             >
               Generate QR
-            </Link>
+            </Link> */}
           </div>
           <div className="flex items-center space-x-4">
             <span className="text-sm text-gray-600">

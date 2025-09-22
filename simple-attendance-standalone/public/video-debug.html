@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Display Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .video-container { 
+            width: 100%; 
+            height: 400px; 
+            border: 2px solid #ccc; 
+            margin: 20px 0; 
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        video { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover;
+            background: #000;
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 10px; 
+            font-size: 16px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            background: #f8f9fa; 
+            border: 1px solid #dee2e6; 
+        }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .info { background: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Video Display Debug Tool</h1>
+    <p>This tool helps debug video display issues in the scanner.</p>
+    
+    <div class="status info">
+        <strong>Instructions:</strong>
+        <ol>
+            <li>Click "Start Camera" to test video display</li>
+            <li>Check if the video feed appears in the container below</li>
+            <li>Look at the status messages for any errors</li>
+            <li>Use browser console (F12) to see detailed logs</li>
+        </ol>
+    </div>
+    
+    <div>
+        <button onclick="startCamera()" id="startBtn">Start Camera</button>
+        <button onclick="stopCamera()" id="stopBtn" disabled>Stop Camera</button>
+    </div>
+    
+    <div id="status" class="status"></div>
+    
+    <div class="video-container">
+        <video id="video" autoplay muted playsinline style="display: none;"></video>
+        <div id="placeholder" style="text-align: center; color: #666;">
+            <p>Video will appear here when camera starts</p>
+        </div>
+    </div>
+    
+    <div class="status info">
+        <strong>Debug Information:</strong>
+        <ul>
+            <li>Camera Access: <span id="cameraStatus">Not tested</span></li>
+            <li>Video Element: <span id="videoStatus">Not ready</span></li>
+            <li>Stream Status: <span id="streamStatus">No stream</span></li>
+            <li>Video Dimensions: <span id="videoDimensions">Unknown</span></li>
+        </ul>
+    </div>
+    
+    <script>
+        let stream = null;
+        const video = document.getElementById('video');
+        const status = document.getElementById('status');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const placeholder = document.getElementById('placeholder');
+        
+        function updateStatus(message, type = 'info') {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+        
+        function updateDebugInfo() {
+            document.getElementById('cameraStatus').textContent = 
+                navigator.mediaDevices ? 'Available' : 'Not available';
+            
+            document.getElementById('videoStatus').textContent = 
+                video.readyState >= 1 ? 'Ready' : 'Not ready';
+            
+            document.getElementById('streamStatus').textContent = 
+                stream ? 'Active' : 'No stream';
+            
+            if (video.videoWidth > 0) {
+                document.getElementById('videoDimensions').textContent = 
+                    `${video.videoWidth} x ${video.videoHeight}`;
+            } else {
+                document.getElementById('videoDimensions').textContent = 'Unknown';
+            }
+        }
+        
+        async function startCamera() {
+            try {
+                updateStatus('Requesting camera access...', 'info');
+                startBtn.disabled = true;
+                
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { 
+                        facingMode: "environment",
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }
+                });
+                
+                video.srcObject = stream;
+                video.style.display = 'block';
+                placeholder.style.display = 'none';
+                
+                video.onloadedmetadata = () => {
+                    console.log('Video metadata loaded');
+                    updateStatus('Video metadata loaded, starting playback...', 'info');
+                    updateDebugInfo();
+                    
+                    const playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise
+                            .then(() => {
+                                updateStatus('✅ Camera working! Video feed is displaying.', 'success');
+                                stopBtn.disabled = false;
+                                updateDebugInfo();
+                            })
+                            .catch((error) => {
+                                console.error('Video play failed:', error);
+                                updateStatus(`❌ Video play failed: ${error.message}`, 'error');
+                                startBtn.disabled = false;
+                            });
+                    }
+                };
+                
+                video.oncanplay = () => {
+                    console.log('Video can play');
+                    updateDebugInfo();
+                };
+                
+                video.onerror = (e) => {
+                    console.error('Video error:', e);
+                    updateStatus(`❌ Video error: ${e.message || 'Unknown error'}`, 'error');
+                    startBtn.disabled = false;
+                };
+                
+                updateStatus('Camera access granted, setting up video...', 'info');
+                
+            } catch (error) {
+                console.error('Camera error:', error);
+                let errorMessage = '❌ Camera access failed: ';
+                
+                if (error.name === 'NotAllowedError') {
+                    errorMessage += 'Permission denied. Please allow camera access.';
+                } else if (error.name === 'NotFoundError') {
+                    errorMessage += 'No camera found.';
+                } else if (error.name === 'NotSupportedError') {
+                    errorMessage += 'Camera not supported. Try using HTTPS.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                updateStatus(errorMessage, 'error');
+                startBtn.disabled = false;
+            }
+        }
+        
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+                video.srcObject = null;
+                video.style.display = 'none';
+                placeholder.style.display = 'block';
+                
+                updateStatus('Camera stopped.', 'info');
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                updateDebugInfo();
+            }
+        }
+        
+        // Update debug info every second
+        setInterval(updateDebugInfo, 1000);
+    </script>
+</body>
+</html>

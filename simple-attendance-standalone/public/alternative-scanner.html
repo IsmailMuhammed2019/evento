@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Alternative QR Scanner</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .scanner-container { 
+            width: 100%; 
+            max-width: 500px; 
+            margin: 20px auto; 
+            border: 2px solid #ccc; 
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #reader { 
+            width: 100%; 
+            height: 400px; 
+        }
+        button { 
+            padding: 10px 20px; 
+            margin: 10px; 
+            font-size: 16px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+        button:hover { background: #0056b3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .status { 
+            padding: 10px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            background: #f8f9fa; 
+            border: 1px solid #dee2e6; 
+        }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .info { background: #d1ecf1; border-color: #bee5eb; color: #0c5460; }
+        .result { 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px; 
+            background: #e2e3e5; 
+            border: 1px solid #d6d8db; 
+            word-break: break-all;
+        }
+    </style>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body>
+    <h1>Alternative QR Scanner (html5-qrcode)</h1>
+    <p>This is an alternative QR scanner using the html5-qrcode library that might work better.</p>
+    
+    <div class="status info">
+        <strong>Instructions:</strong>
+        <ol>
+            <li>Click "Start Scanner" to begin QR code scanning</li>
+            <li>Allow camera permissions when prompted</li>
+            <li>Point the camera at a QR code to scan it</li>
+            <li>Click "Stop Scanner" when done</li>
+        </ol>
+    </div>
+    
+    <div>
+        <button onclick="startScanner()" id="startBtn">Start Scanner</button>
+        <button onclick="stopScanner()" id="stopBtn" disabled>Stop Scanner</button>
+    </div>
+    
+    <div id="status" class="status"></div>
+    
+    <div class="scanner-container">
+        <div id="reader"></div>
+    </div>
+    
+    <div id="result" class="result" style="display: none;">
+        <strong>Scanned QR Code:</strong>
+        <div id="resultText"></div>
+    </div>
+    
+    <div class="status info">
+        <strong>Test QR Codes:</strong>
+        <ul>
+            <li>Use the test QR generator: <a href="/test-qr.html" target="_blank">Generate Test QR</a></li>
+            <li>Or create a simple QR code with any QR generator app</li>
+        </ul>
+    </div>
+    
+    <script>
+        let html5QrcodeScanner = null;
+        const status = document.getElementById('status');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const result = document.getElementById('result');
+        const resultText = document.getElementById('resultText');
+        
+        function updateStatus(message, type = 'info') {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+        
+        function onScanSuccess(decodedText, decodedResult) {
+            console.log("QR Code detected:", decodedText);
+            updateStatus(`✅ QR Code detected: ${decodedText}`, 'success');
+            
+            // Show result
+            resultText.textContent = decodedText;
+            result.style.display = 'block';
+            
+            // You can add your attendance logic here
+            // For example, send to your API:
+            // fetch('/api/student/scan-daily-qr', {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({ 
+            //         student_id: 'STUDENT-001',
+            //         qr_token: decodedText 
+            //     })
+            // });
+        }
+        
+        function onScanFailure(error) {
+            // This is expected for every scan attempt, so we don't log it
+            // console.log("QR Code scan failed:", error);
+        }
+        
+        async function startScanner() {
+            try {
+                updateStatus('Starting scanner...', 'info');
+                startBtn.disabled = true;
+                
+                html5QrcodeScanner = new Html5QrcodeScanner(
+                    "reader",
+                    { 
+                        fps: 10, 
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0
+                    },
+                    false
+                );
+                
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+                
+                updateStatus('✅ Scanner started! Point camera at QR code.', 'success');
+                stopBtn.disabled = false;
+                
+            } catch (error) {
+                console.error('Scanner error:', error);
+                updateStatus(`❌ Scanner failed: ${error.message}`, 'error');
+                startBtn.disabled = false;
+            }
+        }
+        
+        function stopScanner() {
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear().catch(err => {
+                    console.error("Error stopping scanner:", err);
+                });
+                html5QrcodeScanner = null;
+                
+                updateStatus('Scanner stopped.', 'info');
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                result.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

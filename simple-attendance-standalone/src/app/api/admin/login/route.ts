@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Simple admin credentials (in production, use proper authentication)
+// Strong admin credentials (in production, use proper authentication)
 const ADMIN_CREDENTIALS = {
-  'admin': 'admin123',
-  'superadmin': 'super123',
-  'manager': 'manager123'
+  'admin': 'Admin@2024#Secure!',
+  'superadmin': 'Super@2024#Ultra!',
+  'manager': 'Manager@2024#Pro!'
 };
 
 export async function POST(request: NextRequest) {

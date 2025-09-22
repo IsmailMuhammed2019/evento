@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test QR Code Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto; }
+        .qr-container { text-align: center; margin: 20px 0; }
+        .qr-code { border: 2px solid #ccc; padding: 10px; display: inline-block; }
+        input, button { padding: 10px; margin: 5px; font-size: 16px; }
+        input { width: 300px; }
+        button { background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+    <h1>Test QR Code Generator</h1>
+    <p>Generate test QR codes to scan with your attendance system.</p>
+    
+    <div class="info">
+        <h3>How to use:</h3>
+        <ol>
+            <li>Enter a test QR token (e.g., "test-qr-123")</li>
+            <li>Click "Generate QR Code"</li>
+            <li>Use your phone/tablet to scan this QR code with the attendance system</li>
+        </ol>
+    </div>
+    
+    <div>
+        <input type="text" id="qrInput" placeholder="Enter QR token (e.g., test-qr-123)" value="test-qr-123">
+        <button onclick="generateQR()">Generate QR Code</button>
+    </div>
+    
+    <div class="qr-container">
+        <div id="qrCode" class="qr-code"></div>
+    </div>
+    
+    <div class="info">
+        <h3>Test QR Tokens:</h3>
+        <ul>
+            <li><strong>test-qr-123</strong> - Basic test token</li>
+            <li><strong>daily-qr-2024-01-15</strong> - Daily QR format</li>
+            <li><strong>attendance-test</strong> - Simple test token</li>
+        </ul>
+    </div>
+    
+    <script>
+        function generateQR() {
+            const input = document.getElementById('qrInput');
+            const qrContainer = document.getElementById('qrCode');
+            const text = input.value.trim();
+            
+            if (!text) {
+                alert('Please enter a QR token');
+                return;
+            }
+            
+            // Clear previous QR code
+            qrContainer.innerHTML = '';
+            
+            // Generate new QR code
+            QRCode.toCanvas(qrContainer, text, {
+                width: 256,
+                height: 256,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function (error) {
+                if (error) {
+                    console.error('QR Code generation error:', error);
+                    qrContainer.innerHTML = '<p style="color: red;">Error generating QR code</p>';
+                } else {
+                    console.log('QR Code generated successfully');
+                }
+            });
+        }
+        
+        // Generate initial QR code
+        generateQR();
+    </script>
+</body>
+</html>
